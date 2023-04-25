@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Image to PDF Converter - Adrian Bogdan</title>
+	<link rel="icon" type="image/png" href="ico/favicon.png">
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+			background-color: #202020;
+		}
+
+		.container {
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+			background-color: #292929;
+			border-radius: 5px;
+			box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+		}
+
+		.form-group {
+			margin-bottom: 10px;
+		}
+
+		.btn {
+			display: inline-block;
+			padding: 10px 20px;
+			background-color: #4CAF50;
+			color: #fff;
+			border-radius: 5px;
+			text-decoration: none;
+			cursor: pointer;
+		}
+
+		.btn:hover {
+			background-color: #3e8e41;
+		}
+
+		.btn2 {
+			display: inline-block;
+			padding: 2.5px 5px;
+			background-color: #4CAF50;
+			color: #fff;
+			border-radius: 5px;
+			text-decoration: none;
+			cursor: pointer;
+			text-align: right;
+		}
+
+		.btn2:hover {
+			background-color: #3e8e41;
+		}
+
+		#image-preview {
+			display: flex;
+			flex-wrap: wrap;
+			margin-top: 20px;
+		}
+
+		.image-item {
+			margin: 10px;
+			border: 1px solid #ccc;
+			padding: 10px;
+			text-align: center;
+			position: relative;
+			border-radius: 5px;
+			box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+		}
+
+		.image-item img {
+			max-height: 150px;
+			max-width: 150px;
+			display: block;
+			margin: 0 auto;
+		}
+
+		.image-item .remove-btn {
+			position: absolute;
+			top: 5px;
+			right: 5px;
+			padding: 5px;
+			background-color: #f44336;
+			color: #fff;
+			border-radius: 50%;
+			border: none;
+			cursor: pointer;
+		}
+
+		.image-item .remove-btn:hover {
+			background-color: #d32f2f;
+		}
+
+		.social-icons {
+	  text-align: center;
+	  margin-top: 20px;
+    }
+
+		.social-icons a {
+	  display: inline-block;
+	  margin: 10px;
+		}
+
+	  .social-icons img {
+	  height: 40px;
+	  width: 40px;
+    }
+
+    #copytright {
+	  text-align: center;
+	  margin-top: 20px;
+	  font-size: 12px;
+	  color: #a0a0a0;
+    }
+
+		#image-conver-text {
+			color: white;
+		}
+
+		#supported-files {
+			color: white;
+			font-size: 9px;
+		}
+
+	</style>
+</head>
+<body>
+	<br><br><br>
+	<div class="container">
+		<center><img src="images/logo.png" alt="Logo" id="logo"></center>
+		<br><br>
+		<form id="image-form">
+			<div class="form-group">
+				<center>
+				<label for="image-files" id="image-conver-text">Select images to convert:</label>
+				<br><br>
+			</center>
+				<center><input type="file" id="image-files" class="btn" name="image-files[]" accept="image/jpeg, image/png, image/bmp" multiple></center>
+				<center><label for="image-files" id="supported-files">Supported files: JPG/BMP</label></center><br><br>
+			</div>
+			<center><button type="submit" class="btn">Convert to PDF</button></center>
+		</form>
+
+		<div id="image-preview"></div>
+
+		<br>
+		<center><div id="pdf-download"></div></center>
+	</div>
+	<br><br><br>
+	<center>
+		<button type="button" id="open-email-btn" class="btn2">Open Email</button>
+	<div class="social-icons">
+      <a href="https://www.instagram.com/bogdan.py93/"><img src="ico/instagram.png" alt="Instagram"></a>
+      <a href="https://www.facebook.com/profile.php?id=100086361848718"><img src="ico/facebook.png" alt="Facebook"></a>
+      <a href="https://github.com/Bogwhite4990"><img src="ico/github.png" alt="Github"></a>
+      <a href="https://www.adrian-bogdan.com/"><img src="ico/website.png" alt="Website"></a>
+    </div>
+		<br><br>
+    <div id="copytright">&copy; 2023 Adrian Bogdan. All rights reserved.</div>
+  </div>
+</center>
+
+	<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.16.0/dist/pdf-lib.min.js"></script>
+	<script>
+		const openEmailBtn = document.getElementById('open-email-btn');
+		openEmailBtn.addEventListener('click', function() {
+		window.location.href = 'mailto:?subject=Image to PDF Conversion&body=Please find attached the PDF document converted from images.';
+		});
+
+		const form = document.querySelector('#image-form');
+		const imagePreview = document.querySelector('#image-preview');
+		const pdfDownload = document.querySelector('#pdf-download');
+
+		// Remove an image from the preview
+		function removeImage(event) {
+			event.preventDefault();
+			const imageItem = event.target.closest('.image-item');
+			imagePreview.removeChild(imageItem);
+		}
+
+		// Preview the selected images
+		function previewImages(event) {
+			event.preventDefault();
+			const imageFiles = document.querySelector('#image-files').files;
+
+			for (let i = 0; i < imageFiles.length; i++) {
+				const imageFile = imageFiles[i];
+				const imageItem = document.createElement('div');
+				imageItem.className = 'image-item';
+
+				const image = document.createElement('img');
+				image.src = URL.createObjectURL(imageFile);
+
+				const removeBtn = document.createElement('button');
+				removeBtn.className = 'remove-btn';
+				removeBtn.innerText = 'x';
+				removeBtn.addEventListener('click', removeImage);
+
+				imageItem.appendChild(image);
+				imageItem.appendChild(removeBtn);
+				imagePreview.appendChild(imageItem);
+			}
+		}
+
+		// Convert the selected images to a PDF
+		async function convertToPDF(event) {
+			event.preventDefault();
+			const imageFiles = document.querySelector('#image-files').files;
+
+			// Create a new PDF document
+			const pdfDoc = await PDFLib.PDFDocument.create();
+
+			// Add each image to the PDF
+			for (let i = 0; i < imageFiles.length; i++) {
+				const imageFile = imageFiles[i];
+				const imageBytes = await imageFile.arrayBuffer();
+				const image = await pdfDoc.embedJpg(imageBytes);
+				const page = pdfDoc.addPage();
+				const { width, height } = page.getSize();
+				page.drawImage(image, {
+					x: 0,
+					y: 0,
+					width: width,
+					height: height
+				});
+			}
+
+			// Save the PDF to a file and display a download link
+			const pdfBytes = await pdfDoc.save();
+			const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+			const pdfUrl = URL.createObjectURL(pdfBlob);
+			const pdfLink = document.createElement('a');
+			pdfLink.href = pdfUrl;
+			pdfLink.download = 'converted.pdf';
+			pdfLink.innerText = 'Download PDF';
+			pdfLink.className = 'btn';
+
+			// Clear any existing download link before adding a new one
+			const existingPdfLink = document.querySelector('#pdf-download a');
+			if (existingPdfLink) {
+				existingPdfLink.parentNode.removeChild(existingPdfLink);
+			}
+
+			pdfDownload.appendChild(pdfLink);
+		}
+
+		form.addEventListener('submit', convertToPDF);
+		form.addEventListener('change', previewImages);
+	</script>
+</body>
+</html>
